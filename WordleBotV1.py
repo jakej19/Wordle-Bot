@@ -37,10 +37,10 @@ def calc_colours(guess, target):
 
 
 def gen_colour_dict(words):
-    """Generate dictionary of remaining words indexed by guess word and colour pattern from given list of words.
+    """Generate dictionary of remaining words indexed by guess word and colour pattern from given list of words
 
     Args:
-        words (list(str)): List of words
+        words (list of str): List of words
 
     Returns:
         dict: contains all possible remaining words for each (guess, colours) pair
@@ -58,6 +58,15 @@ def gen_colour_dict(words):
 
 
 def get_letter_freqs(words):
+    """Calculates the frequencies of all letters in the input words set,
+    and returns a dictionary where letters are keys, and frequencies values.
+
+    Args:
+        words (set of str): Set of words to find letter frequencies from.
+
+    Returns:
+        Dict: Dictionary mapping characters to letter frequencies.
+    """
     letter_scores = [0] * 26
     for word in words:
         for letter in word:
@@ -65,7 +74,17 @@ def get_letter_freqs(words):
     return {chr(i + 65): letter_scores[i] for i in range(26)}
 
 
-def select_guess(remaining_words, all_words):
+def select_guess(remaining_words):
+    """Returns the best guess by calculating a score for each word, then
+    selecting the guess with maximal score. The score is the sum of
+    letter frequencies for unique letters in the remaining words.
+
+    Args:
+        remaining_words set of str): Set of strings containing words to select guess from.
+
+    Returns:
+        string: A string with the selected guess.
+    """
     letter_scores = get_letter_freqs(remaining_words)
     guess_scores = {
         guess: sum([letter_scores[letter] for letter in set(list(guess))])
@@ -84,6 +103,16 @@ def load_words(WORDS_FILE):
 
 
 def load_dict(WORDS, COLOUR_DICT_FILE):
+    """First creates and saves dictionary if it doesn't exist, then loads dictionary
+    of colour patterns.
+
+    Args:
+        WORDS (List): List of words
+        COLOUR_DICT_FILE (string): File location for colour dictionary
+
+    Returns:
+        Dict: Dictionary of dictionaries mapping words and colour patterns to remaining words.
+    """
     if COLOUR_DICT_FILE in os.listdir("."):
         colour_dict = pickle.load(open(COLOUR_DICT_FILE, "rb"))
         print("Dictionary loaded.")
@@ -104,7 +133,19 @@ def initialise_colorama():
     }
 
 
-def run_game_loop(WORDS, COLOUR_DICT, target=0, display=False):
+def run_game_loop(WORDS, COLOUR_DICT, target="", display=False):
+    """Simulates a game of wordle with given word set, colour dictionary,
+    and target word if entered. Display toggles whether the guesses and game are written to console.
+
+    Args:
+        WORDS (List of str): List of words
+        COLOUR_DICT (Dict): Dictionary of dictionaries of sets of strings
+        target (str, optional): Word to guess. Defaults to "".
+        display (bool, optional): Display game on console if True. Defaults to False.
+
+    Returns:
+        (bool, int): Game sucess boolean, and number of rounds taken.
+    """
     if display:
         initialise_colorama()
     round_no = 0
