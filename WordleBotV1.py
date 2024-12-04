@@ -86,6 +86,8 @@ def select_guess(remaining_words):
         string: A string with the selected guess.
     """
     letter_scores = get_letter_freqs(remaining_words)
+    # Score is sum of letter freqencies(in remaining words) of unique letters
+    # in the guess, uses set to get unique letters
     guess_scores = {
         guess: sum([letter_scores[letter] for letter in set(list(guess))])
         for guess in remaining_words
@@ -153,11 +155,14 @@ def run_game_loop(WORDS, COLOUR_DICT, target="", display=False):
         target = random.choice(WORDS)
     guess = ""
     remaining_words = set(WORDS)
+
     while round_no < 6 and guess != target:
-        guess = select_guess(remaining_words, WORDS)
+
+        guess = select_guess(remaining_words)
         colours = calc_colours(guess, target)
         remaining_words.remove(guess)
         remaining_words = COLOUR_DICT[guess][colours] & remaining_words
+
         if display:
             coloured_string = ""
             for char, color_code in zip(guess, colours):
@@ -167,7 +172,9 @@ def run_game_loop(WORDS, COLOUR_DICT, target="", display=False):
                 coloured_string += colour + char
             coloured_string += Style.RESET_ALL
             print(f"{round_no+1}) {coloured_string}")
+
         round_no += 1
+
     if display:
         if guess == target:
             print(f"Solved in {round_no} rounds.")
@@ -183,6 +190,7 @@ def main():
 
     WORDS = load_words(WORDS_FILE)
     COLOUR_DICT = load_dict(WORDS, COLOUR_DICT_FILE)
+
     # Game loop
     run_game_loop(WORDS, COLOUR_DICT, display=True)
 
