@@ -21,7 +21,7 @@ setup(
     entry_points={
         "console_scripts": [
             "wordle-solver=wordle_bot:main",
-            "wordle-tester=test_bot:main",
+            "wordle-tester=test_wordle_bot:main",
         ],
     },
     classifiers=[

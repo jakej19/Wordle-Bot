@@ -2,7 +2,7 @@ from tqdm import tqdm
 import os
 import matplotlib.pyplot as plt
 from datetime import datetime
-from WordleBotV1 import load_words, load_dict, run_game_loop
+from wordle_bot import load_words, load_dict, run_game_loop
 
 # Constants
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
