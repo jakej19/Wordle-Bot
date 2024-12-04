@@ -1,4 +1,4 @@
-import wordle2
+import WordleBotV1 as wordleBOT
 from tqdm import tqdm
 
 
@@ -6,12 +6,12 @@ def main():
     WORDS_FILE = "ALL ANSWERS.TXT"
     COLOUR_DICT_FILE = "colour_dict.p"
 
-    WORDS = wordle2.load_words(WORDS_FILE)
-    COLOUR_DICT = wordle2.load_dict(WORDS, COLOUR_DICT_FILE)
+    WORDS = wordleBOT.load_words(WORDS_FILE)
+    COLOUR_DICT = wordleBOT.load_dict(WORDS, COLOUR_DICT_FILE)
     num_solved, total = 0, 0
     round_counts = [0] * 6
     for word in tqdm(WORDS):
-        solved, rounds = wordle2.run_game_loop(WORDS, COLOUR_DICT, target=word)
+        solved, rounds = wordleBOT.run_game_loop(WORDS, COLOUR_DICT, target=word)
         total += 1
         num_solved += solved
         round_counts[rounds - 1] += 1
