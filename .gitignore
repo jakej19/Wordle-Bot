@@ -1,5 +1,13 @@
-venv
-colour_dict.p
+# Python-specific ignores
 __pycache__/
-data/outputs
-data/bin
+*.pyc
+*.pyo
+*.pkl
+
+# Virtual environments
+venv/
+env/
+
+# Outputs
+outputs/
+data/bin/
