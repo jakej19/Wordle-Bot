@@ -39,6 +39,7 @@ my_project/
 │   └── outputs/           # Generated output files
 ├── requirements.txt       # Dependencies
 ├── README.md              # Documentation
+├── setup.py               # Setup file
 └── .gitignore             # Ignored files
 ```
 ## Outputs

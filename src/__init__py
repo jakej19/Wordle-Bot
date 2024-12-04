@@ -1,0 +1,5 @@
+from wordle_bot import load_words, load_dict, run_game_loop
+from test_wordle_bot import save_histogram, save_incorrect_words
+
+__version__ = "1.0.0"
+__author__ = "Jacob Joyce"
