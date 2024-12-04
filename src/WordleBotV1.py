@@ -9,8 +9,11 @@ import colorama
 import math
 
 # Constants
-WORDS_FILE = "data/inputs/ALL ANSWERS.txt"
-COLOUR_DICT_FILE = "data/bin/colour_dict.p"
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+WORDS_FILE = os.path.join(BASE_DIR, "data", "inputs", "ALL ANSWERS.txt")
+if not os.path.exists(WORDS_FILE):
+    raise FileNotFoundError(f"Input file not found: {WORDS_FILE}")
+COLOUR_DICT_FILE = os.path.join(BASE_DIR, "data", "bin", "colour_dict.p")
 
 
 # Functions
@@ -99,13 +102,13 @@ def select_guess(remaining_words):
     return max(guess_scores, key=guess_scores.get)
 
 
-def load_words(WORDS_FILE):
+def load_words():
     with open(WORDS_FILE, "r") as f:
         WORDS = f.read().upper().split()
     return WORDS
 
 
-def load_dict(WORDS, COLOUR_DICT_FILE):
+def load_dict(WORDS):
     """First creates and saves dictionary if it doesn't exist, then loads dictionary
     of colour patterns.
 
@@ -188,10 +191,8 @@ def run_game_loop(WORDS, COLOUR_DICT, target="", display=False):
 
 def main():
 
-    WORDS = load_words(WORDS_FILE)
-    COLOUR_DICT = load_dict(WORDS, COLOUR_DICT_FILE)
-
-    # Game loop
+    WORDS = load_words()
+    COLOUR_DICT = load_dict(WORDS)
     run_game_loop(WORDS, COLOUR_DICT, display=True)
 
 

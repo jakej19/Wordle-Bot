@@ -1,13 +1,12 @@
-import WordleBotV1 as wordleBOT
 from tqdm import tqdm
 import os
 import matplotlib.pyplot as plt
 from datetime import datetime
+from WordleBotV1 import load_words, load_dict, run_game_loop
 
 # Constants
-WORDS_FILE = "data/inputs/ALL ANSWERS.txt"
-COLOUR_DICT_FILE = "data/bin/colour_dict.p"
-OUTPUT_DIR = "data/outputs/"
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "data/outputs")
 
 
 def save_histogram(round_counts, total, output_subdir):
@@ -71,8 +70,8 @@ def save_incorrect_words(incorrect_words, output_subdir):
 
 
 def main():
-    WORDS = wordleBOT.load_words(WORDS_FILE)
-    COLOUR_DICT = wordleBOT.load_dict(WORDS, COLOUR_DICT_FILE)
+    WORDS = load_words()
+    COLOUR_DICT = load_dict(WORDS)
 
     num_solved, total = 0, 0
     round_counts = [0] * 7  # Include a 7th column for unsolved words
@@ -80,7 +79,7 @@ def main():
 
     # Process each word
     for word in tqdm(WORDS, "Testing Bot on all words"):
-        solved, rounds = wordleBOT.run_game_loop(WORDS, COLOUR_DICT, target=word)
+        solved, rounds = run_game_loop(WORDS, COLOUR_DICT, target=word)
         total += 1
         if solved:
             num_solved += 1
