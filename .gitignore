@@ -1,7 +1,5 @@
 venv
-bin
 colour_dict.p
 __pycache__/
-data/graphs
-data/incorrect_words.txt
+data/outputs
 data/bin

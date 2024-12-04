@@ -4,27 +4,31 @@ import os
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+# Constants
+WORDS_FILE = "data/inputs/ALL ANSWERS.txt"
+COLOUR_DICT_FILE = "data/bin/colour_dict.p"
+OUTPUT_DIR = "data/outputs/"
 
-def save_histogram(round_counts, total, graph_dir):
+
+def save_histogram(round_counts, total, output_subdir):
     """Saves a histogram of rounds taken to solve, with a vertical red line for the average."""
-    if not os.path.exists(graph_dir):
-        os.makedirs(graph_dir)
-
-    # Calculate average rounds (excluding unsolved words)
+    # Calculate statistics
     total_solved = sum(round_counts[:-1])  # Exclude unsolved words
-    average_rounds = (
-        sum([round_counts[i] * (i + 1) for i in range(len(round_counts) - 1)])
-        / total_solved
-    )
+    solve_percentage = 100 * total_solved / total
+    average_rounds = sum(
+        [round_counts[i] * (i + 1) for i in range(len(round_counts) - 1)]
+    ) / max(total_solved, 1)
 
     # Create histogram
     plt.figure(figsize=(10, 6))
+    bar_colors = ["blue"] * 6 + ["red"]  # Last bar (unsolved) is red
     bars = plt.bar(
         range(1, 8),
         round_counts,
         tick_label=range(1, 8),
         edgecolor="black",
         align="center",
+        color=bar_colors,
     )
 
     # Annotate frequencies above bars
@@ -45,44 +49,37 @@ def save_histogram(round_counts, total, graph_dir):
         label=f"Average Rounds ({average_rounds:.2f})",
     )
 
-    plt.title("Histogram of Rounds Taken to Solve")
+    # Add solve percentage to the title
+    plt.title(
+        f"Histogram of Rounds Taken to Solve (Solve Rate: {solve_percentage:.2f}%)"
+    )
     plt.xlabel("Rounds")
     plt.ylabel("Frequency")
     plt.legend()
-    # Add datetime to the filename
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"rounds_histogram_{timestamp}.png"
-    plt.savefig(os.path.join(graph_dir, filename))
+
+    # Save the plot in the output subdirectory
+    filename = os.path.join(output_subdir, "rounds_histogram.png")
+    plt.savefig(filename)
     plt.close()
 
-    plt.close()
 
-
-def save_incorrect_words(incorrect_words, file_path):
+def save_incorrect_words(incorrect_words, output_subdir):
     """Saves the incorrect words to a file."""
-    if not os.path.exists(os.path.dirname(file_path)):
-        os.makedirs(os.path.dirname(file_path))
-    with open(file_path, "w") as f:
+    filepath = os.path.join(output_subdir, "incorrect_words.txt")
+    with open(filepath, "w") as f:
         f.write("\n".join(incorrect_words))
 
 
 def main():
+    WORDS = wordleBOT.load_words(WORDS_FILE)
+    COLOUR_DICT = wordleBOT.load_dict(WORDS, COLOUR_DICT_FILE)
 
-    # Constants
-    DATA_DIR = "data/"
-    WORDS_FILE = "ALL ANSWERS.txt"
-    COLOUR_DICT_FILE = "colour_dict.p"
-    GRAPH_DIR = "data/graphs/"
-    INCORRECT_WORDS_FILE = "data/incorrect_words.txt"
-
-    WORDS = wordleBOT.load_words(DATA_DIR, WORDS_FILE)
-    COLOUR_DICT = wordleBOT.load_dict(WORDS, DATA_DIR, COLOUR_DICT_FILE)
     num_solved, total = 0, 0
     round_counts = [0] * 7  # Include a 7th column for unsolved words
     incorrect_words = []
 
     # Process each word
-    for word in tqdm(WORDS):
+    for word in tqdm(WORDS, "Testing Bot on all words"):
         solved, rounds = wordleBOT.run_game_loop(WORDS, COLOUR_DICT, target=word)
         total += 1
         if solved:
@@ -93,22 +90,24 @@ def main():
             incorrect_words.append(word)
 
     # Calculate statistics
+    solve_percentage = round(100 * num_solved / total, 2)
     average_rounds = sum([round_counts[i] * (i + 1) for i in range(6)]) / max(
         num_solved, 1
     )
-    solve_rate = round(100 * num_solved / total, 2)
-
-    # Print results
-    print(f"Solve rate: {solve_rate}%")
+    print(f"Solve rate: {solve_percentage}%")
     print(f"Average rounds to solve (excluding unsolved): {round(average_rounds, 2)}")
     print(f"Round counts: {round_counts}")
 
+    # Create output subdirectory for this attempt
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    output_subdir = os.path.join(OUTPUT_DIR, f"attempt_{timestamp}")
+    os.makedirs(output_subdir, exist_ok=True)
+
     # Save results
-    save_histogram(round_counts, total, GRAPH_DIR)
-    save_incorrect_words(incorrect_words, INCORRECT_WORDS_FILE)
-    print(
-        f"Results saved: Histogram in {GRAPH_DIR}, incorrect words in {INCORRECT_WORDS_FILE}"
-    )
+    save_histogram(round_counts, total, output_subdir)
+    save_incorrect_words(incorrect_words, output_subdir)
+
+    print(f"Results saved in {output_subdir}")
 
 
 if __name__ == "__main__":
