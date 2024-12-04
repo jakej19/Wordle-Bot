@@ -69,13 +69,14 @@ def save_incorrect_words(incorrect_words, file_path):
 def main():
 
     # Constants
-    WORDS_FILE = "ALL ANSWERS.TXT"
+    DATA_DIR = "data/"
+    WORDS_FILE = "ALL ANSWERS.txt"
     COLOUR_DICT_FILE = "colour_dict.p"
     GRAPH_DIR = "data/graphs/"
     INCORRECT_WORDS_FILE = "data/incorrect_words.txt"
 
-    WORDS = wordleBOT.load_words(WORDS_FILE)
-    COLOUR_DICT = wordleBOT.load_dict(WORDS, COLOUR_DICT_FILE)
+    WORDS = wordleBOT.load_words(DATA_DIR, WORDS_FILE)
+    COLOUR_DICT = wordleBOT.load_dict(WORDS, DATA_DIR, COLOUR_DICT_FILE)
     num_solved, total = 0, 0
     round_counts = [0] * 7  # Include a 7th column for unsolved words
     incorrect_words = []
