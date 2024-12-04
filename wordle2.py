@@ -4,21 +4,12 @@ import pickle
 from tqdm import tqdm
 from itertools import combinations
 import random
-from colorama import Fore, Style
+from colorama import Fore, Style, init
 import colorama
 import math
 
-WORDS_FILE = "WORDS.TXT"
-COLOUR_DICT_FILE = "colour_dict.p"
 
-colorama.init(autoreset=True)
-colour_map = {
-    0: Fore.LIGHTBLACK_EX,  # Grey
-    1: Fore.YELLOW,  # Yellow
-    2: Fore.GREEN,  # Green
-}
-
-
+# Functions
 def calc_colours(guess, target):
     """Calculates the colour pattern given an input guess and target word, with 0, 1, and 2 representing
     grey, yellow and green respectively
@@ -71,7 +62,7 @@ def get_letter_freqs(words):
     for word in words:
         for letter in word:
             letter_scores[ord(letter) - 65] += 1
-    return {chr(i + 65): math.log(letter_scores[i] + 1) for i in range(26)}
+    return {chr(i + 65): letter_scores[i] for i in range(26)}
 
 
 def select_guess(remaining_words, all_words):
@@ -83,14 +74,16 @@ def select_guess(remaining_words, all_words):
     return max(guess_scores, key=guess_scores.get)
 
 
-def main():
-
+def load_words(WORDS_FILE):
     try:
         with open(WORDS_FILE, "r") as f:
             WORDS = f.read().upper().split()
     except Exception as e:
         print(e)
+    return WORDS
 
+
+def load_dict(WORDS, COLOUR_DICT_FILE):
     if COLOUR_DICT_FILE in os.listdir("."):
         colour_dict = pickle.load(open(COLOUR_DICT_FILE, "rb"))
         print("Dictionary loaded.")
@@ -98,31 +91,60 @@ def main():
         colour_dict = gen_colour_dict(WORDS)
         pickle.dump(colour_dict, open(COLOUR_DICT_FILE, "wb"))
         print("Dictionary saved and loaded.")
+    return colour_dict
 
-    #### Game loop
+
+def initialise_colorama():
+    colorama.init(autoreset=True)
+    global colour_map
+    colour_map = {
+        0: Fore.LIGHTBLACK_EX,  # Grey
+        1: Fore.YELLOW,  # Yellow
+        2: Fore.GREEN,  # Green
+    }
+
+
+def run_game_loop(WORDS, COLOUR_DICT, target=0, display=False):
+    if display:
+        initialise_colorama()
     round_no = 0
-    target = random.choice(WORDS)
+    if not target:
+        target = random.choice(WORDS)
     guess = ""
     remaining_words = set(WORDS)
     while round_no < 6 and guess != target:
         guess = select_guess(remaining_words, WORDS)
         colours = calc_colours(guess, target)
         remaining_words.remove(guess)
-        remaining_words = colour_dict[guess][colours] & remaining_words
-        coloured_string = ""
-        for char, color_code in zip(guess, colours):
-            colour = colour_map.get(
-                color_code, Fore.RESET
-            )  # Default to no color if invalid code
-            coloured_string += colour + char
-        coloured_string += Style.RESET_ALL
-        print(f"{round_no+1}) {coloured_string}")
+        remaining_words = COLOUR_DICT[guess][colours] & remaining_words
+        if display:
+            coloured_string = ""
+            for char, color_code in zip(guess, colours):
+                colour = colour_map.get(
+                    color_code, Fore.RESET
+                )  # Default to no color if invalid code
+                coloured_string += colour + char
+            coloured_string += Style.RESET_ALL
+            print(f"{round_no+1}) {coloured_string}")
         round_no += 1
+    if display:
+        if guess == target:
+            print(f"Solved in {round_no} rounds.")
+        else:
+            print(f"Failed to solve, the word was {target}")
+    return guess == target, round_no
 
-    if guess == target:
-        print(f"Solved in {round_no} rounds.")
-    else:
-        print(f"Failed to solve, the word was {target}")
+
+def main():
+    # Constants
+    WORDS_FILE = "ALL ANSWERS.TXT"
+    COLOUR_DICT_FILE = "colour_dict.p"
+
+    WORDS = load_words(WORDS_FILE)
+    COLOUR_DICT = load_dict(WORDS, COLOUR_DICT_FILE)
+    # Game loop
+    run_game_loop(WORDS, COLOUR_DICT, display=True)
 
 
-main()
+if __name__ == "__main__":
+    main()
