@@ -2,4 +2,6 @@ venv
 bin
 colour_dict.p
 __pycache__/
-data
+data/graphs
+data/incorrect_words.txt
+data/bin

@@ -95,33 +95,41 @@ def select_guess(remaining_words):
     return max(guess_scores, key=guess_scores.get)
 
 
-def load_words(WORDS_FILE):
-    try:
-        with open(WORDS_FILE, "r") as f:
+def load_words(DATA_DIR, WORDS_FILE):
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+    if WORDS_FILE in os.listdir(DATA_DIR):
+        with open(os.path.join(DATA_DIR, WORDS_FILE), "r") as f:
             WORDS = f.read().upper().split()
-    except Exception as e:
-        print(e)
     return WORDS
 
 
-def load_dict(WORDS, COLOUR_DICT_FILE):
+def load_dict(WORDS, DATA_DIR, COLOUR_DICT_FILE):
     """First creates and saves dictionary if it doesn't exist, then loads dictionary
     of colour patterns.
 
     Args:
-        WORDS (List): List of words
+        WORDS (list): List of words
+        DATA_DIR (string): Data directory location
         COLOUR_DICT_FILE (string): File location for colour dictionary
 
     Returns:
         Dict: Dictionary of dictionaries mapping words and colour patterns to remaining words.
     """
-    if COLOUR_DICT_FILE in os.listdir("."):
-        colour_dict = pickle.load(open(COLOUR_DICT_FILE, "rb"))
+    BIN_DIR = os.path.join(DATA_DIR, "bin/")
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+    if not os.path.exists(BIN_DIR):
+        os.makedirs(BIN_DIR)
+
+    if COLOUR_DICT_FILE in os.listdir(BIN_DIR):
+        colour_dict = pickle.load(open(os.path.join(BIN_DIR, COLOUR_DICT_FILE), "rb"))
         print("Dictionary loaded.")
     else:
         colour_dict = gen_colour_dict(WORDS)
-        pickle.dump(colour_dict, open(COLOUR_DICT_FILE, "wb"))
+        pickle.dump(colour_dict, open(os.path.join(BIN_DIR, COLOUR_DICT_FILE), "wb"))
         print("Dictionary saved and loaded.")
+
     return colour_dict
 
 
@@ -185,11 +193,12 @@ def run_game_loop(WORDS, COLOUR_DICT, target="", display=False):
 
 def main():
     # Constants
-    WORDS_FILE = "ALL ANSWERS.TXT"
+    DATA_DIR = "data/"
+    WORDS_FILE = "ALL ANSWERS.txt"
     COLOUR_DICT_FILE = "colour_dict.p"
 
-    WORDS = load_words(WORDS_FILE)
-    COLOUR_DICT = load_dict(WORDS, COLOUR_DICT_FILE)
+    WORDS = load_words(DATA_DIR, WORDS_FILE)
+    COLOUR_DICT = load_dict(WORDS, DATA_DIR, COLOUR_DICT_FILE)
 
     # Game loop
     run_game_loop(WORDS, COLOUR_DICT, display=True)
