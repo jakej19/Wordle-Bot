@@ -11,6 +11,8 @@ import math
 # Constants
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 WORDS_FILE = os.path.join(BASE_DIR, "data", "inputs", "ALL ANSWERS.txt")
+BIN_DIR = "data/bin"
+os.makedirs(BIN_DIR, exist_ok=True)
 if not os.path.exists(WORDS_FILE):
     raise FileNotFoundError(f"Input file not found: {WORDS_FILE}")
 COLOUR_DICT_FILE = os.path.join(BASE_DIR, "data", "bin", "colour_dict.p")

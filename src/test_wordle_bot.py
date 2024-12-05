@@ -7,6 +7,7 @@ from wordle_bot import load_words, load_dict, run_game_loop
 # Constants
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "data/outputs")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def save_histogram(round_counts, total, output_subdir):
